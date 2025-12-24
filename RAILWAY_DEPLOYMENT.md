@@ -31,12 +31,17 @@ git push
 
 1. In Railway project, click **"+ New"**
 2. Select **"GitHub Repo"** → Choose your repository again
-3. Railway will detect it's a Node.js project
-4. **Configure the service:**
+3. **Configure the service:**
    - **Name**: `backend` (or `api`)
-   - **Root Directory**: `backend`
-   - **Build Command**: `npm install && npm run build`
-   - **Start Command**: `npm run start:prod`
+   - **Root Directory**: `backend` ⚠️ **IMPORTANT: Set this!**
+   - Railway will auto-detect Node.js from `package.json`
+   - **Build Command**: (auto-detected) `npm install && npm run build`
+   - **Start Command**: (auto-detected) `npm run start:prod`
+   
+   **Note**: If build fails, make sure:
+   - Root Directory is set to `backend`
+   - `backend/package.json` exists
+   - `backend/nixpacks.toml` exists (already created)
 
 5. **Add Environment Variables:**
    - Click on the backend service
@@ -66,10 +71,15 @@ git push
 2. Select **"GitHub Repo"** → Choose your repository
 3. **Configure the service:**
    - **Name**: `frontend`
-   - **Root Directory**: `frontend`
-   - **Build Command**: `npm install && npm run build`
-   - **Start Command**: `npm run start`
-   - **Watch Paths**: `frontend/**`
+   - **Root Directory**: `frontend` ⚠️ **IMPORTANT: Set this!**
+   - Railway will auto-detect Node.js from `package.json`
+   - **Build Command**: (auto-detected) `npm install && npm run build`
+   - **Start Command**: (auto-detected) `npm run start`
+   
+   **Note**: If build fails, make sure:
+   - Root Directory is set to `frontend`
+   - `frontend/package.json` exists
+   - `frontend/nixpacks.toml` exists (already created)
 
 4. **Add Environment Variables:**
    - Click on the frontend service
@@ -161,20 +171,44 @@ Make sure your `frontend/package.json` has:
 
 ## 🐛 Troubleshooting
 
+### ❌ "npm: command not found" Error
+
+**This is the most common error!** It means Railway can't find Node.js.
+
+**Solution:**
+1. **Check Root Directory** (CRITICAL!):
+   - Go to your service → **Settings** → **Root Directory**
+   - Backend must be: `backend`
+   - Frontend must be: `frontend`
+   - If it's empty or set to `.`, change it!
+
+2. **Verify nixpacks.toml exists:**
+   - `backend/nixpacks.toml` should exist
+   - `frontend/nixpacks.toml` should exist
+   - These files tell Railway to use Node.js
+
+3. **Redeploy:**
+   - After fixing Root Directory, click **"Redeploy"**
+   - Or push a new commit to trigger auto-deploy
+
 ### Backend won't connect to database
 - Check that MySQL service is running
 - Verify environment variables use `${{MySQL.VARIABLE}}` syntax
 - Check backend logs in Railway dashboard
+- Ensure MySQL service is in the same project
 
 ### Frontend can't reach backend
 - Verify `NEXT_PUBLIC_API_URL` is set correctly
 - Use `${{backend.RAILWAY_PUBLIC_DOMAIN}}` for automatic reference
 - Check CORS settings in backend
+- Make sure backend has a public domain generated
 
 ### Build fails
 - Check build logs in Railway
 - Ensure all dependencies are in `package.json`
-- Verify Node.js version (Railway uses latest LTS)
+- Verify Root Directory is set correctly
+- Check that `nixpacks.toml` files exist
+- Verify Node.js version (Railway uses Node.js 20 via nixpacks.toml)
 
 ## 📊 Monitoring
 
