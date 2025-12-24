@@ -1,0 +1,25 @@
+═══════════════════════════════════════════════════════════════
+  MYSQL WORKBENCH - QUICK SETUP
+═══════════════════════════════════════════════════════════════
+
+1. Open MySQL Workbench
+
+2. Click "+" button (or Database → Manage Connections → New)
+
+3. Fill these fields:
+   ┌─────────────────────────────────────┐
+   │ Connection Name: Budget Manager     │
+   │ Hostname:        localhost          │
+   │ Port:            3306               │
+   │ Username:        root                │
+   │ Password:        [Click Store...]   │
+   │ Default Schema:  budget_manager     │
+   └─────────────────────────────────────┘
+
+4. Click "Test Connection" → Enter password
+
+5. Click "OK" to save
+
+6. Double-click connection to connect
+
+═══════════════════════════════════════════════════════════════

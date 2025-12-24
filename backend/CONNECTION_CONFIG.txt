@@ -1,0 +1,41 @@
+═══════════════════════════════════════════════════════════════
+  MySQL Workbench Connection Configuration
+═══════════════════════════════════════════════════════════════
+
+Connection Name: Budget Manager Local
+───────────────────────────────────────────────────────────────
+Hostname:        localhost
+Port:            3306
+Username:        root
+Password:        [Enter your MySQL root password]
+Default Schema:  budget_manager
+───────────────────────────────────────────────────────────────
+
+HOW TO CONNECT:
+───────────────────────────────────────────────────────────────
+1. Open MySQL Workbench
+2. Click the "+" button (Add new connection)
+3. Fill in the fields above
+4. Click "Test Connection" → Enter password
+5. Click "OK" to save
+6. Double-click the connection to connect
+
+VIEWING TABLES:
+───────────────────────────────────────────────────────────────
+Once connected:
+1. Expand "SCHEMAS" in left sidebar
+2. Expand "budget_manager"
+3. Expand "Tables"
+4. You'll see: transactions, budgets
+5. Right-click table → "Select Rows" to view data
+
+QUICK SQL QUERIES:
+───────────────────────────────────────────────────────────────
+USE budget_manager;
+SELECT * FROM transactions;
+SELECT * FROM budgets;
+DESCRIBE transactions;
+DESCRIBE budgets;
+
+═══════════════════════════════════════════════════════════════
+
