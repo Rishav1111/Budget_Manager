@@ -21,6 +21,10 @@ export default function LoginPage() {
       const response = await authApi.login({ email, password });
       setToken(response.access_token);
       setUser(response.user);
+      // Dispatch custom event to update navbar immediately
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('auth-change'));
+      }
       router.push('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.');

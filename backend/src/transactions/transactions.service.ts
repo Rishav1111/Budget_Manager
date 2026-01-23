@@ -60,11 +60,80 @@ export class TransactionsService {
       .reduce((sum, t) => sum + Number(t.amount), 0);
     const balance = totalIncome - totalExpense;
 
+    // Calculate monthly stats for trends
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    const lastMonth = new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().slice(0, 7);
+    
+    const currentMonthIncome = transactions
+      .filter((t) => t.type === 'income' && t.date.startsWith(currentMonth))
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+    
+    const lastMonthIncome = transactions
+      .filter((t) => t.type === 'income' && t.date.startsWith(lastMonth))
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+    
+    const currentMonthExpense = transactions
+      .filter((t) => t.type === 'expense' && t.date.startsWith(currentMonth))
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+    
+    const lastMonthExpense = transactions
+      .filter((t) => t.type === 'expense' && t.date.startsWith(lastMonth))
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+
+    const incomeChange = lastMonthIncome > 0 
+      ? ((currentMonthIncome - lastMonthIncome) / lastMonthIncome) * 100 
+      : 0;
+    const expenseChange = lastMonthExpense > 0 
+      ? ((currentMonthExpense - lastMonthExpense) / lastMonthExpense) * 100 
+      : 0;
+
     return {
       totalIncome,
       totalExpense,
       balance,
+      currentMonthIncome,
+      lastMonthIncome,
+      currentMonthExpense,
+      lastMonthExpense,
+      incomeChange,
+      expenseChange,
     };
+  }
+
+  async bulkDelete(ids: number[], userId: number): Promise<void> {
+    // Verify all transactions belong to the user
+    const transactions = await this.transactionRepository.find({
+      where: ids.map((id) => ({ id, userId })),
+    });
+    
+    if (transactions.length !== ids.length) {
+      throw new Error('Some transactions not found or do not belong to user');
+    }
+    
+    await this.transactionRepository.delete(ids);
+  }
+
+  async bulkUpdate(
+    ids: number[],
+    updateData: { type?: string; category?: string; date?: string },
+    userId: number,
+  ): Promise<Transaction[]> {
+    // Verify all transactions belong to the user
+    const transactions = await this.transactionRepository.find({
+      where: ids.map((id) => ({ id, userId })),
+    });
+    
+    if (transactions.length !== ids.length) {
+      throw new Error('Some transactions not found or do not belong to user');
+    }
+    
+    // Update all transactions
+    const updatePromises = transactions.map((transaction) => {
+      const updated = { ...transaction, ...updateData };
+      return this.transactionRepository.save(updated);
+    });
+    
+    return Promise.all(updatePromises);
   }
 }
 

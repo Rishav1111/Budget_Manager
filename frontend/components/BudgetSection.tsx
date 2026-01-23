@@ -35,29 +35,65 @@ export default function BudgetSection({
         <p className="text-gray-500 text-center py-4">No budget limits set</p>
       ) : (
         <div className="space-y-3 mb-4">
-          {budgets.map((budget) => (
-            <div key={budget.id} className="bg-gray-50 p-4 rounded-lg">
-              <div className="flex justify-between items-center mb-2">
-                <div className="font-semibold">{budget.category}</div>
-                <div className="font-semibold">{Number(budget.percentage || 0).toFixed(0)}%</div>
+          {budgets.map((budget) => {
+            const percentage = Number(budget.percentage || 0);
+            const isOverBudget = percentage >= 100;
+            const isWarning = percentage >= 80 && percentage < 100;
+            
+            return (
+              <div 
+                key={budget.id} 
+                className={`p-4 rounded-xl transition-all ${
+                  isOverBudget 
+                    ? 'bg-red-50 border-2 border-red-300 shadow-md' 
+                    : isWarning 
+                    ? 'bg-yellow-50 border-2 border-yellow-300 shadow-sm'
+                    : 'bg-gray-50 border border-gray-200'
+                }`}
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="font-semibold">{budget.category}</div>
+                    {isOverBudget && (
+                      <span className="px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
+                        OVER
+                      </span>
+                    )}
+                    {isWarning && !isOverBudget && (
+                      <span className="px-2 py-0.5 bg-yellow-500 text-white text-xs font-bold rounded-full">
+                        WARNING
+                      </span>
+                    )}
+                  </div>
+                  <div className={`font-semibold ${
+                    isOverBudget ? 'text-red-600' : isWarning ? 'text-yellow-600' : 'text-gray-700'
+                  }`}>
+                    {percentage.toFixed(0)}%
+                  </div>
+                </div>
+                <div className="text-sm text-gray-600 mb-2">
+                  Rs. {budget.spent?.toFixed(2) || '0.00'} / Rs. {Number(budget.limit).toFixed(2)}
+                  {isOverBudget && (
+                    <span className="ml-2 text-red-600 font-semibold">
+                      (Rs. {(Number(budget.spent || 0) - Number(budget.limit)).toFixed(2)} over)
+                    </span>
+                  )}
+                </div>
+                <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+                  <div
+                    className={`h-full transition-all duration-500 ${
+                      isOverBudget
+                        ? 'bg-gradient-to-r from-red-500 to-red-600'
+                        : isWarning
+                        ? 'bg-gradient-to-r from-yellow-400 to-yellow-500'
+                        : 'bg-gradient-to-r from-indigo-400 to-indigo-500'
+                    }`}
+                    style={{ width: `${Math.min(percentage, 100)}%` }}
+                  />
+                </div>
               </div>
-              <div className="text-sm text-gray-600 mb-2">
-                ${budget.spent?.toFixed(2) || '0.00'} / ${Number(budget.limit).toFixed(2)}
-              </div>
-              <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className={`h-full transition-all ${
-                    (budget.percentage || 0) >= 100
-                      ? 'bg-red-500'
-                      : (budget.percentage || 0) >= 80
-                      ? 'bg-yellow-500'
-                      : 'bg-indigo-500'
-                  }`}
-                  style={{ width: `${Math.min(Number(budget.percentage) || 0, 100)}%` }}
-                />
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

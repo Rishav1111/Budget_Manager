@@ -6,6 +6,7 @@ import {
   ArcElement,
   Tooltip,
   Legend,
+  type ChartOptions,
 } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import { Transaction } from '@/lib/api';
@@ -17,15 +18,13 @@ interface ExpenseChartProps {
 }
 
 export default function ExpenseChart({ transactions }: ExpenseChartProps) {
-  const currentMonth = new Date().toISOString().slice(0, 7);
-  const monthExpenses = transactions.filter(
-    (t) => t.type === 'expense' && t.date.startsWith(currentMonth)
-  );
-
   const categoryTotals: Record<string, number> = {};
-  monthExpenses.forEach((t) => {
-    categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount;
-  });
+  transactions
+    .filter((t) => t.type === 'expense')
+    .forEach((t) => {
+      const amount = Number(t.amount) || 0;
+      categoryTotals[t.category] = (categoryTotals[t.category] || 0) + amount;
+    });
 
   const labels = Object.keys(categoryTotals);
   const data = Object.values(categoryTotals);
@@ -49,10 +48,35 @@ export default function ExpenseChart({ transactions }: ExpenseChartProps) {
     ],
   };
 
+  const options: ChartOptions<'doughnut'> = {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          padding: 15,
+          font: {
+            size: 12,
+          },
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const label = context.label || '';
+            const value = Number(context.parsed);
+            return `${label}: Rs.${value.toFixed(2)}`;
+          },
+        },
+      },
+    },
+  };
+
   if (data.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
-        <p>No expenses this month</p>
+        <p>No expenses for the selected transactions</p>
       </div>
     );
   }
@@ -61,21 +85,7 @@ export default function ExpenseChart({ transactions }: ExpenseChartProps) {
     <div className="h-64">
       <Doughnut
         data={chartData}
-        options={{
-          responsive: true,
-          maintainAspectRatio: true,
-          plugins: {
-            legend: {
-              position: 'bottom',
-              labels: {
-                padding: 15,
-                font: {
-                  size: 12,
-                },
-              },
-            },
-          },
-        }}
+        options={options}
       />
     </div>
   );

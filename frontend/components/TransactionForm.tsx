@@ -11,6 +11,8 @@ interface TransactionFormProps {
   onSubmit: (transaction: Omit<Transaction, 'id'>) => void | Promise<void>;
   initialData?: Transaction;
   onSuccess?: () => void;
+  onLoadTemplate?: (transaction: Omit<Transaction, 'id'>) => void;
+  onSaveTemplate?: (transaction: Omit<Transaction, 'id'>) => void;
 }
 
 export default function TransactionForm({
@@ -18,6 +20,8 @@ export default function TransactionForm({
   onSubmit,
   initialData,
   onSuccess,
+  onLoadTemplate,
+  onSaveTemplate,
 }: TransactionFormProps) {
   const [type, setType] = useState<'income' | 'expense'>('income');
   const [description, setDescription] = useState('');
@@ -33,10 +37,39 @@ export default function TransactionForm({
       setCategory(initialData.category);
       setDate(initialData.date);
     } else {
-      const today = new Date().toISOString().split('T')[0];
-      setDate(today);
+      // Use a consistent date format to avoid hydration issues
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      setDate(`${year}-${month}-${day}`);
     }
   }, [initialData]);
+
+  // Load template data when provided
+  useEffect(() => {
+    if (onLoadTemplate) {
+      // This will be called from parent when template is selected
+    }
+  }, [onLoadTemplate]);
+
+  // Expose method to load template via ref callback
+  const loadTemplate = (template: Omit<Transaction, 'id'>) => {
+    setType(template.type);
+    setDescription(template.description);
+    setAmount(template.amount.toString());
+    setCategory(template.category);
+    // Keep current date when loading template
+  };
+
+  useEffect(() => {
+    if (onLoadTemplate) {
+      (window as any).loadTransactionTemplate = loadTemplate;
+    }
+    return () => {
+      delete (window as any).loadTransactionTemplate;
+    };
+  }, [onLoadTemplate]);
 
   useEffect(() => {
     setCategory('');
@@ -55,8 +88,12 @@ export default function TransactionForm({
       setDescription('');
       setAmount('');
       setCategory('');
-      const today = new Date().toISOString().split('T')[0];
-      setDate(today);
+      // Use a consistent date format to avoid hydration issues
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      setDate(`${year}-${month}-${day}`);
     }
     onSuccess?.();
   };
@@ -140,12 +177,36 @@ export default function TransactionForm({
         />
       </div>
 
-      <button
-        type="submit"
-        className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors font-semibold"
-      >
-        {initialData ? 'Update Transaction' : 'Add Transaction'}
-      </button>
+      <div className="flex flex-col sm:flex-row gap-2">
+        <button
+          type="submit"
+          className="flex-1 min-h-[44px] bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors font-semibold"
+        >
+          {initialData ? 'Update Transaction' : 'Add Transaction'}
+        </button>
+        {onSaveTemplate && !initialData && (
+          <button
+            type="button"
+            onClick={() => {
+              if (description && amount && category) {
+                onSaveTemplate({
+                  type,
+                  description,
+                  amount: parseFloat(amount),
+                  category,
+                  date,
+                });
+              } else {
+                alert('Please fill in all fields before saving as template');
+              }
+            }}
+            className="min-h-[44px] min-w-[44px] px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors font-semibold text-sm flex items-center justify-center"
+            title="Save as template"
+          >
+            💾
+          </button>
+        )}
+      </div>
     </form>
   );
 }

@@ -60,6 +60,12 @@ export interface Stats {
   totalIncome: number;
   totalExpense: number;
   balance: number;
+  currentMonthIncome?: number;
+  lastMonthIncome?: number;
+  currentMonthExpense?: number;
+  lastMonthExpense?: number;
+  incomeChange?: number;
+  expenseChange?: number;
 }
 
 export const transactionsApi = {
@@ -73,6 +79,10 @@ export const transactionsApi = {
   delete: (id: number) =>
     api.delete(`/transactions/${id}`).then((res) => res.data),
   getStats: () => api.get<Stats>('/transactions/stats').then((res) => res.data),
+  bulkDelete: (ids: number[]) =>
+    api.post('/transactions/bulk-delete', { ids }).then((res) => res.data),
+  bulkUpdate: (ids: number[], data: Partial<Transaction>) =>
+    api.post<Transaction[]>('/transactions/bulk-update', { ids, ...data }).then((res) => res.data),
 };
 
 export const budgetsApi = {
@@ -107,9 +117,21 @@ export interface AuthResponse {
   };
 }
 
+export interface Insight {
+  type: 'warning' | 'info' | 'success' | 'recommendation';
+  title: string;
+  message: string;
+  priority: number;
+  action?: string;
+}
+
 export const authApi = {
   login: (data: LoginDto) =>
     api.post<AuthResponse>('/auth/login', data).then((res) => res.data),
   register: (data: RegisterDto) =>
     api.post<AuthResponse>('/auth/register', data).then((res) => res.data),
+};
+
+export const insightsApi = {
+  getInsights: () => api.get<Insight[]>('/insights').then((res) => res.data),
 };

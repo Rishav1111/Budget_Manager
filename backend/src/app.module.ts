@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { TransactionsModule } from './transactions/transactions.module';
 import { BudgetsModule } from './budgets/budgets.module';
 import { AuthModule } from './auth/auth.module';
+import { InsightsModule } from './insights/insights.module';
 import { Transaction } from './entities/transaction.entity';
 import { Budget } from './entities/budget.entity';
 import { User } from './entities/user.entity';
@@ -34,6 +35,7 @@ import { User } from './entities/user.entity';
     TransactionsModule,
     BudgetsModule,
     AuthModule,
+    InsightsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

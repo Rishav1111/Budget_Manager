@@ -22,6 +22,10 @@ export default function SignupPage() {
       const response = await authApi.register({ name, email, password });
       setToken(response.access_token);
       setUser(response.user);
+      // Dispatch custom event to update navbar immediately
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('auth-change'));
+      }
       router.push('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Signup failed. Please try again.');
