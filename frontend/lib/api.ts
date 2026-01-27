@@ -130,6 +130,10 @@ export const authApi = {
     api.post<AuthResponse>('/auth/login', data).then((res) => res.data),
   register: (data: RegisterDto) =>
     api.post<AuthResponse>('/auth/register', data).then((res) => res.data),
+  forgotPassword: (email: string) =>
+    api.post<{ message: string }>('/auth/forgot-password', { email }).then((res) => res.data),
+  resetPassword: (token: string, password: string) =>
+    api.post<{ message: string }>('/auth/reset-password', { token, password }).then((res) => res.data),
 };
 
 export const insightsApi = {

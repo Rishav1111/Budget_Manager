@@ -16,6 +16,12 @@ export class User {
   @Column()
   name: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  resetPasswordToken: string | null;
+
+  @Column({ type: 'datetime', nullable: true })
+  resetPasswordExpires: Date | null;
+
   @OneToMany(() => Transaction, (transaction) => transaction.user)
   transactions: Transaction[];
 
